@@ -1,1 +1,52 @@
-Code
+# Install required libraries
+!pip install yfinance pandas numpy matplotlib
+
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Function to fetch stock data
+def fetch_stock_data(ticker, start_date, end_date):
+    data = yf.download(ticker, start=start_date, end=end_date)
+    data['Date'] = data.index
+    return data
+
+# Calculate moving averages
+def calculate_moving_averages(data, window_sizes):
+    for window in window_sizes:
+        data[f'MA_{window}'] = data['Close'].rolling(window=window).mean()
+    return data
+
+# Visualization function
+def visualize_data(data, ticker):
+    plt.figure(figsize=(14, 7))
+    plt.plot(data['Date'], data['Close'], label='Closing Price', color='blue')
+    moving_averages = [col for col in data.columns if col.startswith('MA_')]
+    for ma in moving_averages:
+        plt.plot(data['Date'], data[ma], label=ma)
+    
+    plt.title(f'{ticker} Stock Price and Moving Averages')
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# Main function
+def main():
+    # Hardcoding values for AAPL
+    ticker = 'AAPL'  # Apple Inc.
+    start_date = '2018-01-01'  # Start date updated to 2018
+    end_date = '2024-01-01'  # End date updated to 2024
+    moving_avg_windows = [20, 50, 200]  # Moving averages for 20-day, 50-day, and 200-day
+    
+    # Fetch and process data
+    stock_data = fetch_stock_data(ticker, start_date, end_date)
+    stock_data = calculate_moving_averages(stock_data, moving_avg_windows)
+    
+    # Visualization
+    visualize_data(stock_data, ticker)
+
+# Run the main function
+main()
